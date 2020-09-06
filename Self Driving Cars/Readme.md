@@ -1,7 +1,7 @@
 # Self Driving Cars-Projects
 
 
-This repository contains three different approaches for building an end to end autonomous self-driving agent in OpenAI Gym Environment. This was a part of the course #### Self Driving Cars (Winter 2019).
+This repository contains three different approaches for building an end to end autonomous self-driving agent in OpenAI Gym Environment. This was a part of the course **Self Driving Cars (Winter 2019)**.
 
 Solutions have been implemented in PyTorch.
 
