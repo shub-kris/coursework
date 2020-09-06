@@ -19,7 +19,7 @@ In this project, the autonomous self driving car agent is trained using Deep Q L
 
 ### Modular Pipeline:
 
-In this project, I got an opportunity to implement a modular apporach for building a self driving car agent. The task comprised of implementing modules for Lane Detection, Path Planning, Lateral and Longitudinal Control.
+In this project, I got an opportunity to implement a modular approach for building a self driving car agent. The task comprised of implementing modules for Lane Detection, Path Planning, Lateral and Longitudinal Control.
 
 
 
