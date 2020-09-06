@@ -6,7 +6,8 @@ This repository contains three different approaches for building an end to end a
 Solutions have been implemented in PyTorch.
 
 
-### Imitation Learning: In this project, the simplest form of imitation learning : behaviour cloning (BC), which focuses on learning the expert’s
+### Imitation Learning: 
+In this project, the simplest form of imitation learning : behaviour cloning (BC), which focuses on learning the expert’s
 policy using supervised learning has been implemented. First, we record the imitations(snapshots) of driving a car in the OpenAI simulator. These snapshots(images) along with the action taken (accelerate, turn left, turn right, brakes) serves as the training data.
 Using this supervised data, a Deep Neural Network is trained and is an autonomous self driving agent.
 
