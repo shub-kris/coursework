@@ -10,22 +10,33 @@ from pyglet import gl
 from pyglet.window import key
 
 # action variables
-a = np.array( [0.0, 0.1, 0.0] )
+a = np.array([0.0, 0.1, 0.0])
 
 # def keyboard commands
 def key_press(k, mod):
     global restart
-    if k==0xff0d: restart = True
-    if k==key.LEFT:  a[0] = -1.0
-    if k==key.RIGHT: a[0] = +1.0
-    if k==key.UP:    a[1] = +1.0
-    if k==key.DOWN:  a[2] = +0.8   # set 1.0 for wheels to block to zero rotation
+    if k == 0xFF0D:
+        restart = True
+    if k == key.LEFT:
+        a[0] = -1.0
+    if k == key.RIGHT:
+        a[0] = +1.0
+    if k == key.UP:
+        a[1] = +1.0
+    if k == key.DOWN:
+        a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
+
 
 def key_release(k, mod):
-    if k==key.LEFT  and a[0]==-1.0: a[0] = 0
-    if k==key.RIGHT and a[0]==+1.0: a[0] = 0
-    if k==key.UP:    a[1] = 0
-    if k==key.DOWN:  a[2] = 0
+    if k == key.LEFT and a[0] == -1.0:
+        a[0] = 0
+    if k == key.RIGHT and a[0] == +1.0:
+        a[0] = 0
+    if k == key.UP:
+        a[1] = 0
+    if k == key.DOWN:
+        a[2] = 0
+
 
 # init environement
 env = CarRacing()
@@ -50,7 +61,7 @@ plt.show()
 while True:
     # perform step
     s, r, done, speed, info = env.step(a)
-    
+
     # lane detection
     lane1, lane2 = LD_module.lane_detection(s)
 
@@ -67,12 +78,12 @@ while True:
         print("step {} total_reward {:+0.2f}".format(steps, total_reward))
 
         LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
-        
+
     steps += 1
     env.render()
 
     # check if stop
-    if done or restart or steps>=600: 
+    if done or restart or steps >= 600:
         print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         break
 

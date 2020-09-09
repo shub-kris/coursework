@@ -1,13 +1,15 @@
 import matplotlib as mpl
-mpl.use('Agg')
+
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def get_state(state): 
-    """ Helper function to transform state """ 
-    state = np.ascontiguousarray(state, dtype=np.float32) 
+def get_state(state):
+    """ Helper function to transform state """
+    state = np.ascontiguousarray(state, dtype=np.float32)
     return np.expand_dims(state, axis=0)
+
 
 def visualize_training(episode_rewards, training_losses, model_identifier):
     """ Visualize training by creating reward + loss plots
@@ -21,9 +23,8 @@ def visualize_training(episode_rewards, training_losses, model_identifier):
         identifier of the agent
     """
     plt.plot(np.array(episode_rewards))
-    plt.savefig("episode_rewards-"+model_identifier+".png")
+    plt.savefig("episode_rewards-" + model_identifier + ".png")
     plt.close()
     plt.plot(np.array(training_losses))
-    plt.savefig("training_losses-"+model_identifier+".png")
+    plt.savefig("training_losses-" + model_identifier + ".png")
     plt.close()
-

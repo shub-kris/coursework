@@ -11,7 +11,7 @@ from pyglet import gl
 from pyglet.window import key
 
 # action variables
-a = np.array( [0.0, 0.0, 0.0] )
+a = np.array([0.0, 0.0, 0.0])
 
 # init environement
 env = CarRacing()
@@ -57,14 +57,14 @@ while True:
         print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
         print("speed {:+0.2f} targetspeed {:+0.2f}".format(speed, target_speed))
 
-        #LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
+        # LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
         LongC_module.plot_speed(speed, target_speed, steps, fig)
 
     steps += 1
     env.render()
 
     # check if stop
-    if done or restart or steps>=600: 
+    if done or restart or steps >= 600:
         print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         break
 

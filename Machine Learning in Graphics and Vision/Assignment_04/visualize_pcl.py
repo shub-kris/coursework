@@ -68,7 +68,7 @@ def img_to_3D_coordinates(img_x, img_y, focal_length, Z, cx, cy):
 
 
 def disparity_to_pointcloud(img, disparity, maximum_depth=50):
-    ''' Returns 3D points and their color value from the disparity and RGB-image input.
+    """ Returns 3D points and their color value from the disparity and RGB-image input.
 
     Arguments:
     ----------
@@ -82,7 +82,7 @@ def disparity_to_pointcloud(img, disparity, maximum_depth=50):
         of size (T, 3)
     colors (numpy array): array containing the RGB color values of the points
         of size (T, 3)
-    '''
+    """
     H, W = img.shape[:2]
 
     # Define constants
@@ -93,11 +93,11 @@ def disparity_to_pointcloud(img, disparity, maximum_depth=50):
 
     # Calculate depth and make sure values lie between 0 and maximum_depth
     depth = disparity_to_depth(disparity, baseline, focal_length)
-    depth = np.clip(depth, 0., maximum_depth)
+    depth = np.clip(depth, 0.0, maximum_depth)
 
-    # Get image x- and y-coordinates 
+    # Get image x- and y-coordinates
     img_x, img_y = np.mgrid[0:H, 0:W]
-    # Transform them to 3D space coordinates X and Y    
+    # Transform them to 3D space coordinates X and Y
     X, Y, Z = img_to_3D_coordinates(img_x, img_y, focal_length, depth, cx, cy)
 
     # Stack X, Y and Z(=depth) value
@@ -115,37 +115,39 @@ def disparity_to_pointcloud(img, disparity, maximum_depth=50):
 
 def main(argv):
     parser = argparse.ArgumentParser(
-        description=("Exercise_4_3 for the Machine Learning Course in Graphics"
-                     " and Vision 2018")
+        description=(
+            "Exercise_4_3 for the Machine Learning Course in Graphics"
+            " and Vision 2018"
+        )
     )
     parser.add_argument(
         "--input-disparity",
         help="Path to the disparity map",
         type=str,
-        default='./examples/disparity.npy'
+        default="./examples/disparity.npy",
     )
     parser.add_argument(
         "--input-image",
         help="Path to the input image",
         type=str,
-        default='./examples/input_image.png'
+        default="./examples/input_image.png",
     )
     parser.add_argument(
         "--output-dir",
-        help='Where the output files should be saved.',
+        help="Where the output files should be saved.",
         type=str,
-        default='./output/pointcloud',
+        default="./output/pointcloud",
     )
     parser.add_argument(
         "--interactive",
         help="Whether to show an interactive plot",
-        action='store_true',
+        action="store_true",
     )
     parser.add_argument(
         "--half-resolution",
         help="Whether half resolution images should be used",
         type=bool,
-        default=True
+        default=True,
     )
 
     args = parser.parse_args(argv)
@@ -163,10 +165,10 @@ def main(argv):
 
     # As we have calculated the disparity on half resolution, we have to downsample the input images accordingly
     if half_resolution:
-        img = imageio.imread(img).astype(np.float32) / 255.
-        img = rescale(img, 0.5, anti_aliasing=True, mode='reflect', multichannel=True)
-    
-    # Get disparity 
+        img = imageio.imread(img).astype(np.float32) / 255.0
+        img = rescale(img, 0.5, anti_aliasing=True, mode="reflect", multichannel=True)
+
+    # Get disparity
     disp = np.load(disp)
 
     # Create point cloud for depth
@@ -175,22 +177,23 @@ def main(argv):
     # Plot point cloud
     fig = plt.figure(figsize=(15, 5))
     ax = Axes3D(fig)
-    plt.axis('equal')
+    plt.axis("equal")
     H = img.shape[0]
     ax.scatter(points[:, 1], points[:, 2], H - points[:, 0], c=colors, s=1)
     ax.view_init(25, -75)
 
-    ax.set_xlabel('X')
-    ax.set_ylabel('Z')
-    ax.set_zlabel('Y')
+    ax.set_xlabel("X")
+    ax.set_ylabel("Z")
+    ax.set_zlabel("Y")
 
     if interactive:
         plt.show()
     else:
-        out_file = os.path.join(output_dir, 'pointcloud.png')
+        out_file = os.path.join(output_dir, "pointcloud.png")
         plt.savefig(out_file, dpi=200)
         plt.close()
-        print('Saved figure to %s.' % out_file)
+        print("Saved figure to %s." % out_file)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

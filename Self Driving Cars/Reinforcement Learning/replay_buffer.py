@@ -51,7 +51,13 @@ class ReplayBuffer(object):
             rewards.append(reward)
             obses_tp1.append(obs_tp1)
             dones.append(done)
-        return np.squeeze(np.array(obses_t), axis=1), np.array(actions), np.array(rewards, dtype=np.float32), np.squeeze(np.array(obses_tp1), axis=1), np.array(dones, dtype=np.float32)
+        return (
+            np.squeeze(np.array(obses_t), axis=1),
+            np.array(actions),
+            np.array(rewards, dtype=np.float32),
+            np.squeeze(np.array(obses_tp1), axis=1),
+            np.array(dones, dtype=np.float32),
+        )
 
     def sample(self, batch_size):
         """Sample a batch of experiences.

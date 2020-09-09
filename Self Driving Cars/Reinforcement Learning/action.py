@@ -18,10 +18,10 @@ def select_greedy_action(state, policy_net, action_size):
         ID of selected action
     """
     with torch.no_grad():
-        actions = policy_net(state).max(1)[1].view(1,
-                1).to('cpu').numpy()[0,0]
-    
+        actions = policy_net(state).max(1)[1].view(1, 1).to("cpu").numpy()[0, 0]
+
     return actions
+
 
 def select_exploratory_action(state, policy_net, action_size, exploration, t):
     """ Select an action according to an epsilon-greedy exploration strategy

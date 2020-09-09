@@ -3,7 +3,9 @@ import torch
 import torch.nn.functional as F
 
 
-def perform_qlearning_step(policy_net, target_net, optimizer, replay_buffer, batch_size, gamma, device):
+def perform_qlearning_step(
+    policy_net, target_net, optimizer, replay_buffer, batch_size, gamma, device
+):
     """ Perform a deep Q-learning step
     Parameters
     -------
@@ -40,9 +42,13 @@ def perform_qlearning_step(policy_net, target_net, optimizer, replay_buffer, bat
         9. Optimize the model
     """
     # sample form replay buffer
-    bs, ba, br, bs1, bd = replay_buffer.sample(batch_size)  
-    bs, ba, br, bd = torch.tensor(bs, device=device), torch.tensor(ba,
-            device=device), torch.tensor(br, device=device), torch.tensor(bd, device=device)
+    bs, ba, br, bs1, bd = replay_buffer.sample(batch_size)
+    bs, ba, br, bd = (
+        torch.tensor(bs, device=device),
+        torch.tensor(ba, device=device),
+        torch.tensor(br, device=device),
+        torch.tensor(bd, device=device),
+    )
     # compute Q(s_t, a)
     q = policy_net(bs).gather(1, ba.unsqueeze(1))
     # doulbe Q-learning
@@ -54,7 +60,7 @@ def perform_qlearning_step(policy_net, target_net, optimizer, replay_buffer, bat
     # maxq1 = ques.max(1)[0].detach()
 
     # masking
-    maxq1 *= torch.tensor([0. if item else 1. for item in bd], device=device)
+    maxq1 *= torch.tensor([0.0 if item else 1.0 for item in bd], device=device)
     # compute target
     target = br + gamma * maxq1
     # compute loss
@@ -69,6 +75,7 @@ def perform_qlearning_step(policy_net, target_net, optimizer, replay_buffer, bat
     optimizer.step()
 
     return loss
+
 
 def update_target_net(policy_net, target_net):
     """ Update the target network

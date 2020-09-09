@@ -15,31 +15,37 @@ class Tensor:
 
         self.forward_usages = 0
         self.backward_usages = 0
-        for input_ in self.inputs:        # It increments to the forward usage of inputs to this tensor
+        for (
+            input_
+        ) in self.inputs:  # It increments to the forward usage of inputs to this tensor
             input_.forward_usages += 1
 
     def prev(self) -> list:
         return self.inputs
 
     def print(self):
-        print('%d)' % self.id, self.__class__.__name__)
-        print('data\n', self.data)
-        print('grad\n', self.grad)
-        print('inputs', [p.id for p in self.prev()])
+        print("%d)" % self.id, self.__class__.__name__)
+        print("data\n", self.data)
+        print("grad\n", self.grad)
+        print("inputs", [p.id for p in self.prev()])
 
     def graph(self, graph=None):
         """ returns a graphviz graph of all dependencies """
         if graph is None:
-            graph = Digraph(format='pdf', node_attr=dict(style='filled', shape='rect'))
-        graph.node(str(self.id), label=self.name(), fillcolor='white' if len(self.inputs) == 0 else 'lightblue')
+            graph = Digraph(format="pdf", node_attr=dict(style="filled", shape="rect"))
+        graph.node(
+            str(self.id),
+            label=self.name(),
+            fillcolor="white" if len(self.inputs) == 0 else "lightblue",
+        )
         for ins in self.inputs:
             ins.graph(graph)
             graph.edge(str(ins.id), str(self.id))
         return graph
 
     def name(self) -> str:
-        return '%d: %s' % (self.id, self.__class__.__name__)
-        
+        return "%d: %s" % (self.id, self.__class__.__name__)
+
     @classmethod
     def reset_tensors(cls):
         cls.all_tensors = []
@@ -56,7 +62,7 @@ class Tensor:
         # call the _assign_grads() method once all Tensors that use this one as input have assigned their gradients
         #   hint: self.forward_usages, self.backward_usages to track that
         #   then also recursively continue with every input of this tensor
-        if(self.forward_usages == self.backward_usages):
+        if self.forward_usages == self.backward_usages:
             if start == True:
                 self.grad = np.ones(self.data.shape)
             self._assign_grads()
@@ -79,7 +85,7 @@ class Variable(Tensor):
         pass
 
     def name(self) -> str:
-        return '%d: %s (%s)' % (self.id, self._name, self.__class__.__name__)
+        return "%d: %s (%s)" % (self.id, self._name, self.__class__.__name__)
 
 
 class Neg(Tensor):
@@ -91,7 +97,7 @@ class Neg(Tensor):
     def _assign_grads(self):
         # add gradients to inputs of this graph node
         self.a.grad -= self.grad
-        self.a.backward_usages += 1 
+        self.a.backward_usages += 1
 
 
 class Sqrt(Tensor):
@@ -113,7 +119,7 @@ class ReduceMean(Tensor):
         self.a = a
 
     def _assign_grads(self):
-        self.a.grad += self.grad/len(self.a.data)
+        self.a.grad += self.grad / len(self.a.data)
         self.a.backward_usages += 1
 
 
@@ -150,10 +156,11 @@ class MatMul(Tensor):
         self.b = b
 
     def _assign_grads(self):
-        self.a.grad += np.matmul(self.grad, self.b.data.T) 
+        self.a.grad += np.matmul(self.grad, self.b.data.T)
         self.b.grad += np.matmul(self.a.data.T, self.grad)
         self.a.backward_usages += 1
         self.b.backward_usages += 1
+
 
 class ReLU(Tensor):
     def __init__(self, a: Tensor):
@@ -162,10 +169,9 @@ class ReLU(Tensor):
         self.a = a
 
     def _assign_grads(self):
-        temp_a = (self.a.data > 0)
-        self.a.grad += self.grad*temp_a
+        temp_a = self.a.data > 0
+        self.a.grad += self.grad * temp_a
         self.a.backward_usages += 1
-        
 
 
 class Sigmoid(Tensor):
@@ -175,7 +181,7 @@ class Sigmoid(Tensor):
         self.a = a
 
     def _assign_grads(self):
-        self.a.grad += self.grad*self.data*(1-self.data)
+        self.a.grad += self.grad * self.data * (1 - self.data)
         self.a.backward_usages += 1
 
 
@@ -185,29 +191,29 @@ def mse(a: Tensor, b: Tensor) -> Tensor:
 
 def main():
     # fixed input
-    v0 = Variable('A', np.array([[-5.0, -2.0, -1.0], [-5.0, -1.0, -3.0]]))
+    v0 = Variable("A", np.array([[-5.0, -2.0, -1.0], [-5.0, -1.0, -3.0]]))
 
     # example computation graph, built on the fly
     vx = Neg(v0)
     vx = Sqrt(vx)
-    
+
     # start backpropagating
     vx.backward()
 
-    #print gradients
+    # print gradients
     for v_ in Tensor.all_tensors:
         # if not isinstance(v_, Variable):
         #     continue
-        print('-'*50)
+        print("-" * 50)
         v_.print()
-        #print(v_.inputs)
+        # print(v_.inputs)
 
     # show the computation graph
-    vx.graph().render('/tmp/autograd/graph', view=True)
+    vx.graph().render("/tmp/autograd/graph", view=True)
 
     # # reset all tensors, since the graph is only built for a single forward+backward pass
     Tensor.reset_tensors()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

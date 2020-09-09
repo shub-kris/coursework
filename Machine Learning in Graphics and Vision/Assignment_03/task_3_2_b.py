@@ -12,7 +12,7 @@ import torchvision
 import pdb
 
 # default `log_dir` is "runs" - we'll be more specific here
-saver_path = ('./noskip_log/')
+saver_path = "./noskip_log/"
 writer = SummaryWriter(saver_path)
 
 epoch = 20
@@ -27,7 +27,6 @@ class NoisyFashionMNIST(Dataset):
 
         super(NoisyFashionMNIST, self).__init__()
         self.incoming_df = incoming_df
-
 
     def __len__(self):
         return len(self.incoming_df)
@@ -46,11 +45,10 @@ class NoisyFashionMNIST(Dataset):
 
 
 class Model(nn.Module):
-
     def __init__(self):
         super(Model, self).__init__()
 
-        #TODO : model
+        # TODO : model
         self.conv1_1 = nn.Conv2d(1, 16, 3, stride=2, padding=1)
         self.conv1_2 = nn.Conv2d(16, 16, 3, stride=2, padding=1)
         self.conv1_3 = nn.Conv2d(16, 16, 3, stride=1, padding=1)
@@ -67,14 +65,26 @@ class Model(nn.Module):
         x = self.conv2_1(x)
 
         return x
+
+
 model = Model().to(device=device)
 
 # Data
 
-fmnist_train = dset.FashionMNIST("./", train=True, transform=transforms.ToTensor(), target_transform=None,
-                                 download=True)
-fmnist_test = dset.FashionMNIST("./", train=False, transform=transforms.ToTensor(), target_transform=None,
-                                download=True)
+fmnist_train = dset.FashionMNIST(
+    "./",
+    train=True,
+    transform=transforms.ToTensor(),
+    target_transform=None,
+    download=True,
+)
+fmnist_test = dset.FashionMNIST(
+    "./",
+    train=False,
+    transform=transforms.ToTensor(),
+    target_transform=None,
+    download=True,
+)
 # noise
 fmnist_noisy_train = NoisyFashionMNIST(fmnist_train)
 fmnist_noisy_test = NoisyFashionMNIST(fmnist_test)
@@ -90,14 +100,13 @@ test_loader = []
 # Set some more stuff
 parameters = list(model.parameters())
 
-#TODO: set optimizer
+# TODO: set optimizer
 optimizer = []
 
 for i in range(epoch):
 
-
-    loss = 0.
-    loss_test = 0.
+    loss = 0.0
+    loss_test = 0.0
 
     # TRAIN
 
@@ -105,7 +114,7 @@ for i in range(epoch):
 
         model.train()
 
-        #TODO: fill data
+        # TODO: fill data
 
         noisy_image = []
         clean_image = []
@@ -121,16 +130,23 @@ for i in range(epoch):
         loss.backward()
         optimizer.step()
 
-        writer.add_scalar('training loss',
-                          loss.item(),
-                          i * len(train_loader) + idx)
+        writer.add_scalar("training loss", loss.item(), i * len(train_loader) + idx)
 
-        images = torch.cat([image_n.cpu().repeat(1, 3, 1, 1), output.cpu().repeat(1, 3, 1, 1), image.cpu().repeat(1, 3, 1, 1)], axis=3)
+        images = torch.cat(
+            [
+                image_n.cpu().repeat(1, 3, 1, 1),
+                output.cpu().repeat(1, 3, 1, 1),
+                image.cpu().repeat(1, 3, 1, 1),
+            ],
+            axis=3,
+        )
         img_grid = torchvision.utils.make_grid(images.cpu())
         # pdb.set_trace()
-        writer.add_image('Input VS Output VS Ground Truth TRAINING',
-                         img_grid,
-                         global_step=i * len(train_loader) + idx)
+        writer.add_image(
+            "Input VS Output VS Ground Truth TRAINING",
+            img_grid,
+            global_step=i * len(train_loader) + idx,
+        )
 
     # TEST
 
@@ -152,18 +168,27 @@ for i in range(epoch):
 
             loss_test = torch.abs(output_t - image_t).mean()
 
-            writer.add_scalar('Validation loss',
-                              loss_test.item(),
-                              i * len(test_loader) + idx_test)
+            writer.add_scalar(
+                "Validation loss", loss_test.item(), i * len(test_loader) + idx_test
+            )
 
-            images_test = torch.cat([image_n_t.cpu().repeat(1, 3, 1, 1), output_t.cpu().repeat(1, 3, 1, 1),image_t.cpu().repeat(1, 3, 1, 1)], axis=3)
+            images_test = torch.cat(
+                [
+                    image_n_t.cpu().repeat(1, 3, 1, 1),
+                    output_t.cpu().repeat(1, 3, 1, 1),
+                    image_t.cpu().repeat(1, 3, 1, 1),
+                ],
+                axis=3,
+            )
             img_grid_t = torchvision.utils.make_grid(images_test.cpu())
             # pdb.set_trace()
-            writer.add_image('Input VS Output VS Ground Truth VALIDATION',
-                             img_grid_t,
-                             global_step=i * len(test_loader) + idx_test)
+            writer.add_image(
+                "Input VS Output VS Ground Truth VALIDATION",
+                img_grid_t,
+                global_step=i * len(test_loader) + idx_test,
+            )
 
-    print('epoch done: ', i)
+    print("epoch done: ", i)
     # torch.save([model], PATH)
-    print('Train Loss :', loss.item())
-    print('Validation loss : ', loss_test.item())
+    print("Train Loss :", loss.item())
+    print("Validation loss : ", loss_test.item())

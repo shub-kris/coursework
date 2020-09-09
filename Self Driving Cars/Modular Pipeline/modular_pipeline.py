@@ -18,13 +18,12 @@ def evaluate():
     """
 
     # action variables
-    a = np.array( [0.0, 0.0, 0.0] )
+    a = np.array([0.0, 0.0, 0.0])
 
     # init environement
     env = CarRacing()
     env.render()
     env.reset()
-
 
     for episode in range(5):
         observation = env.reset()
@@ -42,7 +41,9 @@ def evaluate():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=60, exp_constant=4.5)
+            target_speed = target_speed_prediction(
+                waypoints, max_speed=60, exp_constant=4.5
+            )
 
             # control
             a[0] = LatC_module.stanley(waypoints, speed)
@@ -52,8 +53,7 @@ def evaluate():
             reward_per_episode += r
             env.render()
 
-        print('episode %d \t reward %f' % (episode, reward_per_episode))
-
+        print("episode %d \t reward %f" % (episode, reward_per_episode))
 
 
 def calculate_score_for_leaderboard():
@@ -63,16 +63,25 @@ def calculate_score_for_leaderboard():
     of seeds. Better not change it.
     """
     # action variables
-    a = np.array( [0.0, 0.0, 0.0] )
+    a = np.array([0.0, 0.0, 0.0])
 
     # init environement
     env = CarRacing()
     env.render()
     env.reset()
 
-    seeds = [22597174, 68545857, 75568192, 91140053, 86018367,
-             49636746, 66759182, 91294619, 84274995, 31531469]
-
+    seeds = [
+        22597174,
+        68545857,
+        75568192,
+        91140053,
+        86018367,
+        49636746,
+        66759182,
+        91294619,
+        84274995,
+        31531469,
+    ]
 
     total_reward = 0
 
@@ -95,7 +104,9 @@ def calculate_score_for_leaderboard():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=60, exp_constant=4.5)
+            target_speed = target_speed_prediction(
+                waypoints, max_speed=60, exp_constant=4.5
+            )
 
             # control
             a[0] = LatC_module.stanley(waypoints, speed)
@@ -106,12 +117,13 @@ def calculate_score_for_leaderboard():
 
             env.render()
 
-        print('episode %d \t reward %f' % (episode, reward_per_episode))
+        print("episode %d \t reward %f" % (episode, reward_per_episode))
         total_reward += np.clip(reward_per_episode, 0, np.infty)
 
-    print('---------------------------')
-    print(' total score: %f' % (total_reward / 10))
-    print('---------------------------')
+    print("---------------------------")
+    print(" total score: %f" % (total_reward / 10))
+    print("---------------------------")
+
 
 if __name__ == "__main__":
     if sys.argv[1] == "test":
@@ -123,5 +135,4 @@ if __name__ == "__main__":
         else:
             calculate_score_for_leaderboard()
     else:
-        print('This command is not supported, use '
-            'test or score.')
+        print("This command is not supported, use " "test or score.")

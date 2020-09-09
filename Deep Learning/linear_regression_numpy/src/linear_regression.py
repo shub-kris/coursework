@@ -1,17 +1,17 @@
-''''
+"""'
 TODO fill in your names:
 group member 1: Shubham Krishna
 group member 2:
 
-'''
+"""
 
 import matplotlib.pyplot as plt
 import mnist as mnist
 import numpy as np
 
 # Load the raw MNIST
-X_train, y_train = mnist.read(dataset='training')
-X_test, y_test = mnist.read(dataset='testing')
+X_train, y_train = mnist.read(dataset="training")
+X_test, y_test = mnist.read(dataset="testing")
 
 # split eval data from train data:
 eval_data_size = 10000
@@ -23,18 +23,18 @@ y_eval = y_train[0:10000]
 X_train = X_train[10000:, :, :]
 y_train = y_train[10000:]
 # As a sanity check, we print out the size of the training and test data.
-print('Training data shape: ', X_train.shape)
-print('Training labels shape: ', y_train.shape)
-print('Evaluation data shape: ', X_eval.shape)
-print('Evaluation labels shape: ', y_eval.shape)
-print('Test data shape: ', X_test.shape)
-print('Test labels shape: ', y_test.shape)
+print("Training data shape: ", X_train.shape)
+print("Training labels shape: ", y_train.shape)
+print("Evaluation data shape: ", X_eval.shape)
+print("Evaluation labels shape: ", y_eval.shape)
+print("Test data shape: ", X_test.shape)
+print("Test labels shape: ", y_test.shape)
 
 # Reshape the image data into rows
 # Datatype float allows you to subtract images (is otherwise uint8)
-X_train = np.reshape(X_train, (X_train.shape[0], -1)).astype('float')
-X_eval = np.reshape(X_eval, (X_eval.shape[0], -1)).astype('float')
-X_test = np.reshape(X_test, (X_test.shape[0], -1)).astype('float')
+X_train = np.reshape(X_train, (X_train.shape[0], -1)).astype("float")
+X_eval = np.reshape(X_eval, (X_eval.shape[0], -1)).astype("float")
+X_test = np.reshape(X_test, (X_test.shape[0], -1)).astype("float")
 print("x shapes:")
 print(X_train.shape, X_eval.shape, X_test.shape)
 # normalize train data from range 0 to 255 to range 0 to 1
@@ -52,7 +52,7 @@ def make_one_hot(v):
     """
     num_classes = 10
     v_one_hot = np.zeros((len(v), num_classes))
-    for i,j in enumerate(v):
+    for i, j in enumerate(v):
         v_one_hot[i][j] = 1
     # TODO calculate one hot encoded y vectors
     return v_one_hot
@@ -76,10 +76,9 @@ b = np.ones((10)) * 0.01
 
 
 def get_next_batch(iteration, batch_size, data, label):
-    X = data[iteration * batch_size:(iteration + 1) * batch_size, :]
-    y = label[iteration * batch_size:(iteration + 1) * batch_size, :]
+    X = data[iteration * batch_size : (iteration + 1) * batch_size, :]
+    y = label[iteration * batch_size : (iteration + 1) * batch_size, :]
     return X, y
-
 
 
 def get_loss(y_hat, y):
@@ -90,8 +89,8 @@ def get_loss(y_hat, y):
     """
     l = 0
     for row_y, row_y_hat in zip(y, y_hat):
-    # TODO calc the loss:
-        l = l +  np.sum((row_y - row_y_hat)**2)
+        # TODO calc the loss:
+        l = l + np.sum((row_y - row_y_hat) ** 2)
     return l / batch_size
 
 
@@ -104,8 +103,8 @@ def get_accuracy(y_hat, y):
     """
     acc = 0
     for row_y, row_y_hat in zip(y, y_hat):
-    # TODO calc the accuracy:
-        if(np.argmax(row_y) == np.argmax(row_y_hat)):
+        # TODO calc the accuracy:
+        if np.argmax(row_y) == np.argmax(row_y_hat):
             acc = acc + 1
     return acc / batch_size
 
@@ -116,7 +115,7 @@ def do_network_inference(x):  # over whole batch
     :return: dim(batchsize,10)
     """
     # TODO calculate y_hat without using a loop, note that the numpy vector addition has some special features that can be used.
-    y_hat = np.matmul(x,W) + b
+    y_hat = np.matmul(x, W) + b
     return y_hat
 
 
@@ -128,12 +127,12 @@ def get_delta_weights(y_hat, y, x_batch):
     :return: dim(784,10)
     """
     # TODO calculate delta_w with a sum over outer products
-    y_dif_transformed = np.transpose(np.expand_dims(y_hat - y, axis = -1), (0, 2, 1))
-    x_transformed = np.expand_dims(x_batch, axis = -1)
-    #print(f'X: {np.sum(x_transformed)}')
+    y_dif_transformed = np.transpose(np.expand_dims(y_hat - y, axis=-1), (0, 2, 1))
+    x_transformed = np.expand_dims(x_batch, axis=-1)
+    # print(f'X: {np.sum(x_transformed)}')
     delta_w = np.sum(2 * np.matmul(x_transformed, y_dif_transformed), axis=0)
-    #print(f'dW: {np.sum(delta_w)}')    
-    #print(delta_w)
+    # print(f'dW: {np.sum(delta_w)}')
+    # print(delta_w)
     return delta_w / batch_size
 
 
@@ -145,7 +144,7 @@ def get_delta_biases(y_hat, y):
     """
     # TODO calculate delta_b
     delta_b = np.zeros(10)
-    for i,j in zip(y_hat,y):
+    for i, j in zip(y_hat, y):
         delta_b = delta_b + 2 * (i - j)
     return delta_b / batch_size
 
@@ -161,7 +160,7 @@ def do_parameter_update(delta_w, delta_b, W, b):
     W = W - learning_rate * delta_w
     b = b - learning_rate * delta_b
     return W, b
-    
+
 
 # do training and evaluation
 mean_eval_losses = []
@@ -185,10 +184,17 @@ for epoch in range(epochs):
         mean_train_loss_per_epoch += train_loss
         mean_train_acc_per_epoch += train_accuracy
         # print("epoch: {0:d} \t iteration {1:d} \t train loss: {2:f}".format(epoch, i,train_loss))
-    mean_train_loss_per_epoch = mean_train_loss_per_epoch / ((train_data_size // batch_size))
-    mean_train_acc_per_epoch = mean_train_acc_per_epoch / ((train_data_size // batch_size))
-    print("epoch:{0:d} \t mean train loss: {1:f} \t mean train acc: {2:f}".format(epoch,mean_train_loss_per_epoch,
-                                                                              mean_train_acc_per_epoch))
+    mean_train_loss_per_epoch = mean_train_loss_per_epoch / (
+        (train_data_size // batch_size)
+    )
+    mean_train_acc_per_epoch = mean_train_acc_per_epoch / (
+        (train_data_size // batch_size)
+    )
+    print(
+        "epoch:{0:d} \t mean train loss: {1:f} \t mean train acc: {2:f}".format(
+            epoch, mean_train_loss_per_epoch, mean_train_acc_per_epoch
+        )
+    )
     # evaluation:
     mean_eval_loss_per_epoch = 0
     mean_eval_acc_per_epoch = 0
@@ -200,11 +206,14 @@ for epoch in range(epochs):
         eval_accuracy = get_accuracy(y_hat, y)
         mean_eval_loss_per_epoch += eval_loss
         mean_eval_acc_per_epoch += eval_accuracy
-    
+
     mean_eval_loss_per_epoch = mean_eval_loss_per_epoch / (eval_data_size // batch_size)
     mean_eval_acc_per_epoch = mean_eval_acc_per_epoch / ((eval_data_size // batch_size))
-    print("epoch:{0:d} \t mean eval loss: {1:f} \t mean eval acc: {2:f}".format(epoch,mean_eval_loss_per_epoch,
-                                                                            mean_eval_acc_per_epoch))
+    print(
+        "epoch:{0:d} \t mean eval loss: {1:f} \t mean eval acc: {2:f}".format(
+            epoch, mean_eval_loss_per_epoch, mean_eval_acc_per_epoch
+        )
+    )
     mean_eval_losses.append(mean_eval_loss_per_epoch)
     mean_train_losses.append(mean_train_loss_per_epoch)
     mean_eval_accs.append(mean_eval_acc_per_epoch)
@@ -223,7 +232,11 @@ for i in range(test_data_size // batch_size):
 
 mean_test_loss_per_epoch = mean_test_loss_per_epoch / (test_data_size // batch_size)
 mean_test_acc_per_epoch = mean_test_acc_per_epoch / ((test_data_size // batch_size))
-print("final test loss: {0:f} \t final test acc: {1:f}".format(mean_test_loss_per_epoch, mean_test_acc_per_epoch))
+print(
+    "final test loss: {0:f} \t final test acc: {1:f}".format(
+        mean_test_loss_per_epoch, mean_test_acc_per_epoch
+    )
+)
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 4))
 ax1 = axs[0]

@@ -22,7 +22,7 @@ class StereoMatchingNetwork(torch.nn.Module):
         Layer output tensor size: (batch_size, n_features, height - 8, width - 8)
         """
         super().__init__()
-        gpu = torch.device('cuda')
+        gpu = torch.device("cuda")
         filter_number = 16
 
         #######################################
@@ -66,8 +66,9 @@ class StereoMatchingNetwork(torch.nn.Module):
 
         return x
 
-def save_loss_plot(loss, out_file='./output/learned_stereo/loss.png'):
-    ''' Saves the list of loss values as a plot to the file out_file.
+
+def save_loss_plot(loss, out_file="./output/learned_stereo/loss.png"):
+    """ Saves the list of loss values as a plot to the file out_file.
 
     ---------    
     Arguments:
@@ -77,21 +78,21 @@ def save_loss_plot(loss, out_file='./output/learned_stereo/loss.png'):
     Returns:
     ---------
         0
-    '''
+    """
     #######################################
     # -------------------------------------
     # TODO: ENTER CODE HERE (EXERCISE 4.2 c))
     # -------------------------------------
     #######################################
     plt.plot(loss)
-    plt.title('Loss Plot')
+    plt.title("Loss Plot")
     plt.savefig(out_file)
 
     return 0
 
 
 def save_output_files(out_dir, disparity, image_number=0, max_disparity=50):
-    ''' Saves the output files.
+    """ Saves the output files.
 
     ---------
     Arguments:
@@ -99,28 +100,33 @@ def save_output_files(out_dir, disparity, image_number=0, max_disparity=50):
         disparity (numpy array): disparity values
         image_number (int): image number for naming conventions
         max_disparity (int): maximum disparity for the visualizations
-    '''
+    """
     # Create output direction's
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     # Save disparty to file
-    disp_dir = os.path.join(out_dir, 'disparities')
+    disp_dir = os.path.join(out_dir, "disparities")
     if not os.path.exists(disp_dir):
         os.makedirs(disp_dir)
-    out_file = os.path.join(disp_dir, '%04d_disparity.npy' % image_number)
+    out_file = os.path.join(disp_dir, "%04d_disparity.npy" % image_number)
     np.save(out_file, disparity.numpy())
 
     # Save visualization to file
-    vis_dir = os.path.join(out_dir, 'visualizations')
+    vis_dir = os.path.join(out_dir, "visualizations")
     if not os.path.exists(vis_dir):
         os.makedirs(vis_dir)
     # Define output file name and title for the plot
-    out_file_vis = os.path.join(vis_dir, '%04d_vis.png' % image_number)
-    title = 'Disparity map for image %04d with a Siamese Neural Network' % image_number
+    out_file_vis = os.path.join(vis_dir, "%04d_vis.png" % image_number)
+    title = "Disparity map for image %04d with a Siamese Neural Network" % image_number
 
     # Visualize the disparty and save it to a file
-    visualize_disparity(disparity.numpy().astype(np.uint8), title=title, out_file=out_file_vis, max_disparity=max_disparity)
+    visualize_disparity(
+        disparity.numpy().astype(np.uint8),
+        title=title,
+        out_file=out_file_vis,
+        max_disparity=max_disparity,
+    )
 
 
 def hinge_loss(score_pos, score_neg, label):
@@ -173,11 +179,14 @@ def calculate_similarity_score(infer_similarity_metric, Xl, Xr):
     Fl = infer_similarity_metric(Xl)
     Fr = infer_similarity_metric(Xr)
     # z = torch.sum(Fl * Fr,dim=(1,2,3))
-    y = torch.einsum('abcd,abcd->a',Fl,Fr)
+    y = torch.einsum("abcd,abcd->a", Fl, Fr)
     return y
 
-def training_loop(infer_similarity_metric, patches, optimizer, iterations=1000, batch_size=128):
-    ''' Runs the training loop of the siamese network.
+
+def training_loop(
+    infer_similarity_metric, patches, optimizer, iterations=1000, batch_size=128
+):
+    """ Runs the training loop of the siamese network.
     
     ---------    
     Arguments:
@@ -186,7 +195,7 @@ def training_loop(infer_similarity_metric, patches, optimizer, iterations=1000, 
         optimizer (obj): optimizer object
         iterations (int): number of iterations to perform
         batch_size (int): batch size
-    '''
+    """
 
     loss_list = []
     try:
@@ -194,7 +203,7 @@ def training_loop(infer_similarity_metric, patches, optimizer, iterations=1000, 
         for idx, batch in zip(range(iterations), patches.iterate_batches(batch_size)):
             # Extract the batches and labels
             Xl, Xr_pos, Xr_neg = batch
-            label = torch.eye(2).cuda()[[0]*len(Xl)]  # label is always [1, 0]
+            label = torch.eye(2).cuda()[[0] * len(Xl)]  # label is always [1, 0]
 
             # calculate the similarity score
             score_pos = calculate_similarity_score(infer_similarity_metric, Xl, Xr_pos)
@@ -268,52 +277,68 @@ def compute_disparity_CNN(infer_similarity_metric, img_l, img_r, max_disparity=5
 
 def main(argv):
     parser = argparse.ArgumentParser(
-        description=("Exercise_04 for the Machine Learning Course in Graphics and Vision 2020")
+        description=(
+            "Exercise_04 for the Machine Learning Course in Graphics and Vision 2020"
+        )
     )
     parser.add_argument(
         "action",
         choices=["train", "evaluate"],
-        help="Choose the action to perform {train, evaluate}"
+        help="Choose the action to perform {train, evaluate}",
     )
-    parser.add_argument("--input-dir", 
+    parser.add_argument(
+        "--input-dir",
         type=str,
         default="./KITTI_2015_subset",
-        help="Path to the KITTI 2015 subset folder.")
-    parser.add_argument("--output-dir", 
+        help="Path to the KITTI 2015 subset folder.",
+    )
+    parser.add_argument(
+        "--output-dir",
         type=str,
         default="./output/learned_stereo",
-        help="Path to the output directory.")
-    parser.add_argument("--iterations",
+        help="Path to the output directory.",
+    )
+    parser.add_argument(
+        "--iterations",
         type=int,
         default=1000,
-        help="The number of iterations (default 1000)")
-    parser.add_argument("--batch-size",
+        help="The number of iterations (default 1000)",
+    )
+    parser.add_argument(
+        "--batch-size",
         type=int,
         default=128,
-        help="The batch size used for training (default 128)")
-    parser.add_argument("--lr",
+        help="The batch size used for training (default 128)",
+    )
+    parser.add_argument(
+        "--lr",
         type=float,
         default=3e-4,
-        help="The learning rate used for training (default 3e-4)")
-    parser.add_argument("--patch-size",
+        help="The learning rate used for training (default 3e-4)",
+    )
+    parser.add_argument(
+        "--patch-size",
         type=int,
         default=9,
-        help="The patch size the siamese network is using during training (default 9)")
-    parser.add_argument("--max-disparity", 
+        help="The patch size the siamese network is using during training (default 9)",
+    )
+    parser.add_argument(
+        "--max-disparity",
         type=int,
         default=50,
-        help="The maximum disparity that is tested (default 50)")
+        help="The maximum disparity that is tested (default 50)",
+    )
 
     args = parser.parse_args(argv)
 
-    # Fix random seed for reproducibility        
+    # Fix random seed for reproducibility
     np.random.seed(7)
     torch.manual_seed(7)
 
     # Shortcuts for directories
     input_dir = args.input_dir
     out_dir = args.output_dir
-    model_out_dir = os.path.join(out_dir, 'model')
+    model_out_dir = os.path.join(out_dir, "model")
     model_file = os.path.join(model_out_dir, "model.t7")
 
     # Other shortcuts
@@ -339,36 +364,47 @@ def main(argv):
 
         # Initialize the network
         infer_similarity_metric = StereoMatchingNetwork()
-        optimizer = torch.optim.SGD(infer_similarity_metric.parameters(), lr=args.lr, momentum=0.9)
+        optimizer = torch.optim.SGD(
+            infer_similarity_metric.parameters(), lr=args.lr, momentum=0.9
+        )
 
         # Start training loop
-        training_loop(infer_similarity_metric, patches, optimizer,
-                      iterations=args.iterations, batch_size=args.batch_size)
+        training_loop(
+            infer_similarity_metric,
+            patches,
+            optimizer,
+            iterations=args.iterations,
+            batch_size=args.batch_size,
+        )
         # Save checkpoint
         torch.save(infer_similarity_metric, model_file)
-        print('Saved model checkpoint.')
+        print("Saved model checkpoint.")
 
     elif args.action == "evaluate":
         # Check that model file exists
         if not os.path.exists(model_file):
-            raise UserWarning('No model file found. Can not perform evaluation.')
+            raise UserWarning("No model file found. Can not perform evaluation.")
         # Load the model
-        infer_similarity_metric = torch.load(model_file, map_location='cpu')
+        infer_similarity_metric = torch.load(model_file, map_location="cpu")
         infer_similarity_metric.eval()
-        print('Successfully loaded \n\t%s' % model_file)
+        print("Successfully loaded \n\t%s" % model_file)
 
         # Load KITTI test split
         dataset = KITTIDataset(os.path.join(input_dir, "data_scene_flow/testing/"))
         # Loop over test images
         for i in range(len(dataset)):
-            print('Processing %d image' % i)
+            print("Processing %d image" % i)
             # Load images and add padding
             img_l, img_r = dataset[i]
             img_l, img_r = add_padding(img_l, padding), add_padding(img_r, padding)
             img_l, img_r = torch.Tensor(img_l), torch.Tensor(img_r)
 
-            disparity_map = compute_disparity_CNN(infer_similarity_metric, img_l, img_r, max_disparity=max_disparity)
-            save_output_files(out_dir, disparity_map[0], image_number=i, max_disparity=max_disparity)
+            disparity_map = compute_disparity_CNN(
+                infer_similarity_metric, img_l, img_r, max_disparity=max_disparity
+            )
+            save_output_files(
+                out_dir, disparity_map[0], image_number=i, max_disparity=max_disparity
+            )
 
 
 if __name__ == "__main__":

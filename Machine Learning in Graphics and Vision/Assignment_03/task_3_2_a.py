@@ -9,13 +9,12 @@ import numpy as np
 import pdb
 import torchvision
 
-class NoisyFashionMNIST(Dataset):
 
+class NoisyFashionMNIST(Dataset):
     def __init__(self, incoming_df):
 
         super(NoisyFashionMNIST, self).__init__()
         self.incoming_df = incoming_df
-
 
     def __len__(self):
         return len(self.incoming_df)
@@ -35,19 +34,17 @@ class NoisyFashionMNIST(Dataset):
         return image, noisy_image
 
 
-
-if __name__ == '__main__':
-
+if __name__ == "__main__":
 
     fmnist_train = dset.FashionMNIST("./", train=True, transform=transforms.ToTensor())
     fmnist_noisy = NoisyFashionMNIST(fmnist_train)
 
-
-
     for i in range(80):
-        #TODO: extract images
-        index = random.randint(100,200)
+        # TODO: extract images
+        index = random.randint(100, 200)
         dp = fmnist_noisy[index]
-        images_vis = torch.cat([dp[1].cpu().repeat(1, 3, 1, 1), dp[0].cpu().repeat(1, 3, 1, 1)], axis=3)
+        images_vis = torch.cat(
+            [dp[1].cpu().repeat(1, 3, 1, 1), dp[0].cpu().repeat(1, 3, 1, 1)], axis=3
+        )
         img_grid = torchvision.utils.make_grid(images_vis.cpu())
-    #TODO: visualize (noisy_image, clean_image) in a grid
+    # TODO: visualize (noisy_image, clean_image) in a grid

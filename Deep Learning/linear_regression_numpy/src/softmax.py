@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import numpy as np
+
 #
 # (b)
 #
@@ -9,12 +10,13 @@ import numpy as np
 
 
 def softmax(b):
-    #TODO
-    b = b - np.max(b) #For numerical stability
+    # TODO
+    b = b - np.max(b)  # For numerical stability
     b = np.exp(b)
     sum = np.sum(b)
-    b = b/sum
+    b = b / sum
     return b
+
 
 #
 # compute the softmax-cossentropy between the preactivations a and the
@@ -22,25 +24,28 @@ def softmax(b):
 # y is an integer indicating the correct class, 0 <= y < np.size(a, axis=-1).
 #
 def softmax_crossentropy(a, y):
-    #TODO
+    # TODO
     y_h = np.zeros(len(a))
     y_h[y] = 1
     res = -y_h * np.log(softmax(a))
     return np.sum(res)
-    
+
+
 #
 # (c)
-#    
+#
 # compute the gradient of the softmax-cossentropy between the
 # preactivations a and the correct class y with respect to the preactivations
 # a.
 # y is an integer indicating the correct class, 0 <= y < np.size(a, axis=-1).
 #
 def grad_softmax_crossentropy(a, y):
-    #TODO
+    # TODO
     z = np.zeros(len(a))
     z[y] = 1
-    return(softmax(a) -  z)
+    return softmax(a) - z
+
+
 #
 # (d)
 #
@@ -53,13 +58,13 @@ def grad_softmax_crossentropy(a, y):
 # implemented correctly, the difference between analytical and numerical
 # gradient should be of the same magnitude as e
 def numerical_gradient(a, y, e):
-    #TODO
+    # TODO
     E = np.zeros(len(a))
     E[y] = e
-    return ((softmax_crossentropy(a + E,y) - softmax_crossentropy(a,y))/e)
+    return (softmax_crossentropy(a + E, y) - softmax_crossentropy(a, y)) / e
 
 
-#TODO compare analytical and numerical gradient
+# TODO compare analytical and numerical gradient
 
 n = 3
 for i in range(3):
@@ -68,8 +73,6 @@ for i in range(3):
     e = 0.0001
     y = i
     num_gradient = np.zeros(n)
-    num_gradient[y] = numerical_gradient(a,y,e)
-    anlyt_grafient = grad_softmax_crossentropy(a,y)
+    num_gradient[y] = numerical_gradient(a, y, e)
+    anlyt_grafient = grad_softmax_crossentropy(a, y)
     print((num_gradient - anlyt_grafient)[y])
-
-

@@ -6,8 +6,8 @@ import deepq
 def main():
     """ 
     Train a Deep Q-Learning agent in headless mode on the cluster
-    """ 
-    display = Display(visible=0, size=(800,600))
+    """
+    display = Display(visible=0, size=(800, 600))
     display.start()
     env = gym.make("CarRacing-v0")
     deepq.learn(env)
@@ -15,6 +15,5 @@ def main():
     display.stop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

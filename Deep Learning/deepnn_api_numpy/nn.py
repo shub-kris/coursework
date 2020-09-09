@@ -15,11 +15,12 @@ about Layers:
 - call(inputs)  the forward pass
 """
 ##############
-#Shubham Krishna Bozidar Antic   
+# Shubham Krishna Bozidar Antic
 ##############
 
 tf.random.set_seed(0)
 initializer = tf.initializers.TruncatedNormal()
+
 
 class ReLULayer(tf.keras.layers.Layer):
     """ classic ReLU function for non-linearity """
@@ -30,7 +31,7 @@ class ReLULayer(tf.keras.layers.Layer):
         :return: ReLu(inputs)
         """
         # TODO (a) ReLU function, you are allowed to use tf.math
-        return tf.maximum(0,inputs)
+        return tf.maximum(0, inputs)
 
 
 class SoftMaxLayer(tf.keras.layers.Layer):
@@ -43,11 +44,11 @@ class SoftMaxLayer(tf.keras.layers.Layer):
         """
 
         # TODO(a)  SoftMax function, you are allowed to use tf.math. Make it numerically stable. Don't use any loops to realize this.
-        max_val = tf.reduce_max(inputs, axis = 1 ,keepdims = True)
+        max_val = tf.reduce_max(inputs, axis=1, keepdims=True)
         outputs = inputs - max_val
         outputs = tf.exp(outputs)
-        sum = tf.reduce_sum(outputs, axis = 1 ,keepdims = True)
-        return tf.divide(outputs,sum)
+        sum = tf.reduce_sum(outputs, axis=1, keepdims=True)
+        return tf.divide(outputs, sum)
 
 
 class DenseLayer(tf.keras.layers.Layer):
@@ -65,13 +66,22 @@ class DenseLayer(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         # TODO (a) add weights and possibly use_bias variables
-        #self.w = self.add_weight(shape=(input_shape[-1], self.num_neurons),initializer = initializer,trainable = True)
-        #self.b = self.add_weight(shape=(1, self.num_neurons),initializer = initializer,trainable = True)
-        self.w = tf.Variable(initial_value = initializer(shape=(input_shape[-1], self.num_neurons),
-                                               dtype='float32'), trainable=True)
+        # self.w = self.add_weight(shape=(input_shape[-1], self.num_neurons),initializer = initializer,trainable = True)
+        # self.b = self.add_weight(shape=(1, self.num_neurons),initializer = initializer,trainable = True)
+        self.w = tf.Variable(
+            initial_value=initializer(
+                shape=(input_shape[-1], self.num_neurons), dtype="float32"
+            ),
+            trainable=True,
+        )
 
-        self.b =  tf.Variable(initial_value = initializer(shape=(1,self.num_neurons),    # Changed from shape = (self.num_neurons,)
-                                               dtype='float32'), trainable=True)
+        self.b = tf.Variable(
+            initial_value=initializer(
+                shape=(1, self.num_neurons),  # Changed from shape = (self.num_neurons,)
+                dtype="float32",
+            ),
+            trainable=True,
+        )
 
     def call(self, inputs):
         # TODO (a) linear/affine transformation
@@ -91,19 +101,18 @@ class SequentialModel(tf.keras.layers.Layer):
         self.first = True
         # TODO (b) interleave DenseLayer and ReLULayer of given sizes, start and end with DenseLayer
         for i in range(len(num_neurons) - 1):
-            self.modules.append(DenseLayer(num_neurons[i],use_bias = use_bias))
+            self.modules.append(DenseLayer(num_neurons[i], use_bias=use_bias))
             self.modules.append(ReLULayer())
         self.modules.append(DenseLayer(num_neurons[-1]))
         self.modules.append(SoftMaxLayer())
         # TODO (b) add a SoftMaxLayer
 
-
     def call(self, inputs):
         # TODO (b) propagate input sequentially
         x = inputs
-        for i in range(0,len(self.modules),2):
+        for i in range(0, len(self.modules), 2):
             x = self.modules[i](x)
-            x = self.modules[i+1](x)
+            x = self.modules[i + 1](x)
         return x
 
 
@@ -111,16 +120,18 @@ def test_model(model, test_set):
     test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy()
 
     # TODO (c) for every batch in the set...
-    for x_test,y_test in test_set:
+    for x_test, y_test in test_set:
         outputs = model(x_test)
-        test_accuracy.update_state(y_test,outputs)
+        test_accuracy.update_state(y_test, outputs)
 
     # TODO (c) compute outputs and update the accuracy
 
     return test_accuracy.result()
 
 
-def train_model(model, train_set, eval_set, loss, learning_rate, epochs) -> (list, list):
+def train_model(
+    model, train_set, eval_set, loss, learning_rate, epochs
+) -> (list, list):
     """
     :param model: a sequential model defining the network
     :param train_set: a tf.data.Dataset providing the training data
@@ -137,7 +148,7 @@ def train_model(model, train_set, eval_set, loss, learning_rate, epochs) -> (lis
     eval_accuracy_per_epoch = []
 
     # TODO (c) for every batch in the set...
-        
+
     # TODO (c) compute outputs (logits), loss, gradients
 
     # TODO (c) update the model
@@ -147,22 +158,28 @@ def train_model(model, train_set, eval_set, loss, learning_rate, epochs) -> (lis
     # some train loop
     for e in range(epochs):
         train_accuracy.reset_states()
-        for x_train,y_train in train_set:
+        for x_train, y_train in train_set:
             with tf.GradientTape() as tape:
                 outputs = model(x_train)
-                train_loss = loss(y_train,outputs)
-                
-            weights= []
+                train_loss = loss(y_train, outputs)
+
+            weights = []
             for layer in model.modules:
                 if type(layer) is DenseLayer:
-                    weights+=[layer.w,layer.b]
+                    weights += [layer.w, layer.b]
             grads = tape.gradient(train_loss, weights)
             optimizer.apply_gradients(zip(grads, weights))
-            train_accuracy.update_state(y_train,outputs)
+            train_accuracy.update_state(y_train, outputs)
         train_accuracy_per_epoch.append(train_accuracy.result())
         eval_accuracy_per_epoch.append(test_model(model, eval_set))
-        tf.print("epoch: ", e, "\t train accuracy: ", train_accuracy_per_epoch[-1], "\t eval accuracy: ",
-                 eval_accuracy_per_epoch[-1])
+        tf.print(
+            "epoch: ",
+            e,
+            "\t train accuracy: ",
+            train_accuracy_per_epoch[-1],
+            "\t eval accuracy: ",
+            eval_accuracy_per_epoch[-1],
+        )
 
     return eval_accuracy_per_epoch, train_accuracy_per_epoch
 
@@ -177,13 +194,30 @@ def single_training(train_set, eval_set, test_set, epochs, loss, learning_rate):
     :return: list of evaluation accuracies and list of train accuracies
     """
     model = SequentialModel([12, 12, 12, 10], use_bias=True)
-    eval_accuracies, train_accuracies = train_model(model, train_set, eval_set, loss, learning_rate, epochs)
-    print('Train accuracy per epoch: %s' % ', '.join(['%.3f' % a for a in train_accuracies]))
-    print('Evaluation accuracy per epoch: %s' % ', '.join(['%.3f' % a for a in eval_accuracies]))
-    print('Test  accuracy: %.3f' % test_model(model, test_set))
+    eval_accuracies, train_accuracies = train_model(
+        model, train_set, eval_set, loss, learning_rate, epochs
+    )
+    print(
+        "Train accuracy per epoch: %s"
+        % ", ".join(["%.3f" % a for a in train_accuracies])
+    )
+    print(
+        "Evaluation accuracy per epoch: %s"
+        % ", ".join(["%.3f" % a for a in eval_accuracies])
+    )
+    print("Test  accuracy: %.3f" % test_model(model, test_set))
 
 
-def grid_training(train_set, eval_set, test_set, epochs, loss, learning_rate: float, depths: [int], widths: [int]):
+def grid_training(
+    train_set,
+    eval_set,
+    test_set,
+    epochs,
+    loss,
+    learning_rate: float,
+    depths: [int],
+    widths: [int],
+):
     """
     :param train_set: a tf.data.Dataset providing the training data
     :param eval_set: a tf.data.Dataset providing the evaluation data
@@ -202,27 +236,36 @@ def grid_training(train_set, eval_set, test_set, epochs, loss, learning_rate: fl
             model = SequentialModel(num_neurons, use_bias=True)
             train_model(model, train_set, eval_set, loss, learning_rate, epochs)
             z[i, j] = test_model(model, test_set)
-            print('finished for d=%d, w=%d, acc=%.3f' % (d, w, z[i, j]))
+            print("finished for d=%d, w=%d, acc=%.3f" % (d, w, z[i, j]))
 
-    plt.title('Grid search')
+    plt.title("Grid search")
     ax = plt.gca()
-    im = ax.imshow(z, cmap='Wistia')
+    im = ax.imshow(z, cmap="Wistia")
     ax.figure.colorbar(im, ax=ax)
     ax.set_xticks(np.arange(len(widths)))
     ax.set_yticks(np.arange(len(depths)))
-    ax.set_xticklabels(['w=%d' % w for w in widths])
-    ax.set_yticklabels(['d=%d' % d for d in depths])
+    ax.set_xticklabels(["w=%d" % w for w in widths])
+    ax.set_yticklabels(["d=%d" % d for d in depths])
     ax.tick_params(top=False, bottom=True, labeltop=False, labelbottom=True)
-    ax.set_xticks(np.arange(len(widths) + 1) - .5, minor=True)
-    ax.set_yticks(np.arange(len(depths) + 1) - .5, minor=True)
+    ax.set_xticks(np.arange(len(widths) + 1) - 0.5, minor=True)
+    ax.set_yticks(np.arange(len(depths) + 1) - 0.5, minor=True)
     for i in range(len(depths)):
         for j in range(len(widths)):
-            im.axes.text(j, i, '%.3f' % z[i, j], None)
+            im.axes.text(j, i, "%.3f" % z[i, j], None)
     plt.show()
-    #use plt.savefig('grid.png') when working on the cluster
+    # use plt.savefig('grid.png') when working on the cluster
 
 
-def grid_training2(train_set, eval_set, test_set, epochs, loss, learning_rates: [float], depth: int, widths: [int]):
+def grid_training2(
+    train_set,
+    eval_set,
+    test_set,
+    epochs,
+    loss,
+    learning_rates: [float],
+    depth: int,
+    widths: [int],
+):
     """
     :param train_set: a tf.data.Dataset providing the training data
     :param eval_set: a tf.data.Dataset providing the evaluation data
@@ -241,22 +284,22 @@ def grid_training2(train_set, eval_set, test_set, epochs, loss, learning_rates: 
             model = SequentialModel(num_neurons, use_bias=True)
             train_model(model, train_set, eval_set, loss, lr, epochs)
             z[i, j] = test_model(model, test_set)
-            print('finished for lr=%f, w=%d, acc=%.3f' % (lr, w, z[i, j]))
+            print("finished for lr=%f, w=%d, acc=%.3f" % (lr, w, z[i, j]))
 
-    plt.title('Grid search')
+    plt.title("Grid search")
     ax = plt.gca()
-    im = ax.imshow(z, cmap='Wistia')
+    im = ax.imshow(z, cmap="Wistia")
     ax.figure.colorbar(im, ax=ax)
     ax.set_xticks(np.arange(len(widths)))
     ax.set_yticks(np.arange(len(learning_rates)))
-    ax.set_xticklabels(['w=%d' % w for w in widths])
-    ax.set_yticklabels(['lr=%f' % lr for lr in learning_rates])
+    ax.set_xticklabels(["w=%d" % w for w in widths])
+    ax.set_yticklabels(["lr=%f" % lr for lr in learning_rates])
     ax.tick_params(top=False, bottom=True, labeltop=False, labelbottom=True)
-    ax.set_xticks(np.arange(len(widths) + 1) - .5, minor=True)
-    ax.set_yticks(np.arange(len(learning_rates) + 1) - .5, minor=True)
+    ax.set_xticks(np.arange(len(widths) + 1) - 0.5, minor=True)
+    ax.set_yticks(np.arange(len(learning_rates) + 1) - 0.5, minor=True)
     for i in range(len(learning_rates)):
         for j in range(len(widths)):
-            im.axes.text(j, i, '%.3f' % z[i, j], None)
+            im.axes.text(j, i, "%.3f" % z[i, j], None)
     plt.show()
 
 
@@ -271,32 +314,32 @@ def normalize_dataset(x_train, x_eval, x_test):
     :return: the normalized datasets
     """
 
-    #TODO (e) Normalize the data as described in the docstring
-    data = [x_train,x_eval,x_test]
+    # TODO (e) Normalize the data as described in the docstring
+    data = [x_train, x_eval, x_test]
     norm_data = []
     for i in data:
-        mean_x = tf.reduce_mean(i, axis = 1, keepdims = True)
-        sd_x = tf.math.reduce_std(i, axis = 1, keepdims = True)
-        sd_x = tf.where(tf.equal(sd_x, 0.), tf.ones_like(sd_x), sd_x)
+        mean_x = tf.reduce_mean(i, axis=1, keepdims=True)
+        sd_x = tf.math.reduce_std(i, axis=1, keepdims=True)
+        sd_x = tf.where(tf.equal(sd_x, 0.0), tf.ones_like(sd_x), sd_x)
         norm_data.append(tf.divide(i - mean_x, sd_x))
-    #norm_x_train = norm_data[0], norm_x_eval = norm_data[1] , norm_x_test = norm_data[2]
-    return (norm_data[0],norm_data[1],norm_data[2])
+    # norm_x_train = norm_data[0], norm_x_eval = norm_data[1] , norm_x_test = norm_data[2]
+    return (norm_data[0], norm_data[1], norm_data[2])
+
 
 def main():
     # Loading the MNIST Dataset and creating tf Datasets
     batch_size = 100
     evaluation_set_size = 10000
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    x_train = x_train[evaluation_set_size:].reshape(50000, 784).astype('float32')
+    x_train = x_train[evaluation_set_size:].reshape(50000, 784).astype("float32")
     y_train = y_train[evaluation_set_size:]
-    x_eval = x_train[:evaluation_set_size].reshape(10000, 784).astype('float32')
+    x_eval = x_train[:evaluation_set_size].reshape(10000, 784).astype("float32")
     y_eval = y_train[:evaluation_set_size]
-    x_test = x_test[:].reshape(10000, 784).astype('float32')
-
+    x_test = x_test[:].reshape(10000, 784).astype("float32")
 
     # Normalize the data sets
     # TODO uncomment for (e) and (f)
-    #x_train, x_eval, x_test = normalize_dataset(x_train,x_eval,x_test)
+    # x_train, x_eval, x_test = normalize_dataset(x_train,x_eval,x_test)
 
     train_set = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     train_set = train_set.shuffle(1024).batch(batch_size)
@@ -309,13 +352,22 @@ def main():
     loss = tf.keras.losses.SparseCategoricalCrossentropy()
 
     # TODO run for (c) :
-    #single_training(train_set, eval_set, test_set, epochs=5, loss=loss, learning_rate=0.01)
+    # single_training(train_set, eval_set, test_set, epochs=5, loss=loss, learning_rate=0.01)
     # TODO run for (d) and (e):
-    grid_training(train_set,eval_set, test_set, epochs=3, loss=loss, learning_rate=0.01, depths=[0, 1, 2], widths=[12, 24])
+    grid_training(
+        train_set,
+        eval_set,
+        test_set,
+        epochs=3,
+        loss=loss,
+        learning_rate=0.01,
+        depths=[0, 1, 2],
+        widths=[12, 24],
+    )
     # TODO run for (f):
-    #grid_training2(train_set, eval_set, test_set, epochs=3, loss=loss, learning_rates=[1, 0.1, 0.001], depth=1,
-                   #widths=[12, 24])
+    # grid_training2(train_set, eval_set, test_set, epochs=3, loss=loss, learning_rates=[1, 0.1, 0.001], depth=1,
+    # widths=[12, 24])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

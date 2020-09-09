@@ -17,31 +17,32 @@ def load_imitations(data_folder):
     observations:   python list of N numpy.ndarrays of size (96, 96, 3)
     actions:        python list of N numpy.ndarrays of size 3
     """
-    #idx_file = os.path.join(data_folder,"count.npy")    # I don't think there is any file like this count.npy is analogous to how many files present in directory
-    #assert os.path.exists(idx_file), "file doesn't exist: %s" % idx_file  # Checks if file is present or not
-    #idx = np.load(idx_file)                                         # Loads the idx_file and returns a list or numpy array not an integer
-    
+    # idx_file = os.path.join(data_folder,"count.npy")    # I don't think there is any file like this count.npy is analogous to how many files present in directory
+    # assert os.path.exists(idx_file), "file doesn't exist: %s" % idx_file  # Checks if file is present or not
+    # idx = np.load(idx_file)                                         # Loads the idx_file and returns a list or numpy array not an integer
+
     observations = []
     actions = []
-    for i in range(599):                                    # So how does it work?? range() takes integer as an argument
-        # if i % max(1, int(idx / 10)) == 0:                  # Why? 
-            # print("preloading data %d/%d",(i, idx - 1))
-        observations.append(np.load(os.path.join(data_folder,"observation_%05d.npy" % i)))
-        actions.append(np.load(os.path.join(data_folder,"action_%05d.npy" % i)))
+    for i in range(599):  # So how does it work?? range() takes integer as an argument
+        # if i % max(1, int(idx / 10)) == 0:                  # Why?
+        # print("preloading data %d/%d",(i, idx - 1))
+        observations.append(
+            np.load(os.path.join(data_folder, "observation_%05d.npy" % i))
+        )
+        actions.append(np.load(os.path.join(data_folder, "action_%05d.npy" % i)))
     # for i in range(1533):
-        # observations.append(np.load(os.path.join(data_folder,"myobservation_%05d.npy" % i)))
-        # actions.append(np.load(os.path.join(data_folder,"myaction_%05d.npy" % i)))
+    # observations.append(np.load(os.path.join(data_folder,"myobservation_%05d.npy" % i)))
+    # actions.append(np.load(os.path.join(data_folder,"myaction_%05d.npy" % i)))
     # for i in range(101):
-        # observations.append(np.load(os.path.join(data_folder,"errorobservation_%05d.npy" % i)))
-        # actions.append(np.load(os.path.join(data_folder,"erroraction_%05d.npy" % i)))
+    # observations.append(np.load(os.path.join(data_folder,"errorobservation_%05d.npy" % i)))
+    # actions.append(np.load(os.path.join(data_folder,"erroraction_%05d.npy" % i)))
     # for i in range(631):
-        # observations.append(np.load(os.path.join(data_folder,"goodobservation_%05d.npy" % i)))
-        # actions.append(np.load(os.path.join(data_folder,"goodaction_%05d.npy" % i)))
+    # observations.append(np.load(os.path.join(data_folder,"goodobservation_%05d.npy" % i)))
+    # actions.append(np.load(os.path.join(data_folder,"goodaction_%05d.npy" % i)))
     # for i in range(461):
-        # observations.append(np.load(os.path.join(data_folder,"gobservation_%05d.npy" % i)))
-        # actions.append(np.load(os.path.join(data_folder,"gaction_%05d.npy" % i)))
-        
-    
+    # observations.append(np.load(os.path.join(data_folder,"gobservation_%05d.npy" % i)))
+    # actions.append(np.load(os.path.join(data_folder,"gaction_%05d.npy" % i)))
+
     return observations, actions
 
 
@@ -57,8 +58,8 @@ def save_imitations(data_folder, actions, observations):
     actions:        python list of N numpy.ndarrays of size 3
     """
     for i in range(len(actions)):
-        np.save(os.path.join(data_folder,"gobservation_%05d" %i), observations[i])
-        np.save(os.path.join(data_folder,"gaction_%05d" %i), actions[i])
+        np.save(os.path.join(data_folder, "gobservation_%05d" % i), observations[i])
+        np.save(os.path.join(data_folder, "gaction_%05d" % i), actions[i])
 
 
 class ControlStatus:
@@ -76,20 +77,32 @@ class ControlStatus:
         self.brake = 0.0
 
     def key_press(self, k, mod):
-        if k == key.ESCAPE: self.quit = True
-        if k == key.SPACE: self.stop = True
-        if k == key.TAB: self.save = True
-        if k == key.B: self.start = True
-        if k == key.LEFT: self.steer = -1.0
-        if k == key.RIGHT: self.steer = +1.0
-        if k == key.UP: self.accelerate = +0.5
-        if k == key.DOWN: self.brake = +0.8
-        
+        if k == key.ESCAPE:
+            self.quit = True
+        if k == key.SPACE:
+            self.stop = True
+        if k == key.TAB:
+            self.save = True
+        if k == key.B:
+            self.start = True
+        if k == key.LEFT:
+            self.steer = -1.0
+        if k == key.RIGHT:
+            self.steer = +1.0
+        if k == key.UP:
+            self.accelerate = +0.5
+        if k == key.DOWN:
+            self.brake = +0.8
+
     def key_release(self, k, mod):
-        if k == key.LEFT and self.steer < 0.0: self.steer = 0.0
-        if k == key.RIGHT and self.steer > 0.0: self.steer = 0.0
-        if k == key.UP: self.accelerate = 0.0
-        if k == key.DOWN: self.brake = 0.0
+        if k == key.LEFT and self.steer < 0.0:
+            self.steer = 0.0
+        if k == key.RIGHT and self.steer > 0.0:
+            self.steer = 0.0
+        if k == key.UP:
+            self.accelerate = 0.0
+        if k == key.DOWN:
+            self.brake = 0.0
 
 
 def record_imitations(imitations_folder):
@@ -105,7 +118,7 @@ def record_imitations(imitations_folder):
     SPACE:              restart on a new track
     TAB:                save the current run
     """
-    env = gym.make('CarRacing-v0').env
+    env = gym.make("CarRacing-v0").env
     status = ControlStatus()
     total_reward = 0.0
 
@@ -124,13 +137,14 @@ def record_imitations(imitations_folder):
             # collect all observations and actions
             if status.start:
                 observations.append(observation.copy())
-                actions.append(np.array([status.steer, status.accelerate,
-                                     status.brake]))
+                actions.append(
+                    np.array([status.steer, status.accelerate, status.brake])
+                )
             # submit the users' action to the environment and get the reward
             # for that step as well as the new observation (status)
-            observation, reward, done, info = env.step([status.steer,
-                                                        status.accelerate,
-                                                        status.brake])
+            observation, reward, done, info = env.step(
+                [status.steer, status.accelerate, status.brake]
+            )
             total_reward += reward
             env.render()
             time.sleep(0.20)
